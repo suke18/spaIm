@@ -1,0 +1,78 @@
+---
+title: "Dirchlet Multinomial Simulation"
+author:
+  - name: Kenong Su
+    email: kenong.su@pennmedicine.upenn.edu
+shorttitle: DM simulation
+abstract: >
+ This includes basic steps for simulating DM distribution in spatial transcriptomics data. 
+vignette: >
+  %\VignetteIndexEntry{The DM Simulation Guide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\usepackage[utf8]{inputenc}
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    fig_width: 5
+---
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+  .tocify-subheader > .tocify-item {
+  text-indent: 1px;}
+</style>
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+\vspace{.1in}
+
+# Read the data
+Using Method of Moments (MoM) approach to estimate $N$ and $P$ parameters in multinomial distributions. 
+
+```{r read data, message=FALSE, results='hide'}
+library(SingleCellExperiment)
+library(zellkonverter)
+library(MCMCpack)
+IDC = readH5AD("../data/IDC.h5ad")
+regions = IDC$region
+Y = as.matrix(assays(IDC)[[1]])
+```
+
+# Estimation
+Input count matrix and estimate parameters
+
+```{r estimation}
+print(IDC)
+source("Estimation_DM.R")
+est_alpha = estPara(Y, regions)
+seqDepth = colSums(Y)
+```
+
+# Simulation
+```{r simulation}
+Ynew = matrix(0, ncol = ncol(Y), nrow = nrow(Y))
+for (i in 1:ncol(Y)){
+    reg = regions[i]
+    tmp_alpha = est_alpha[, reg]
+    PP = rdirichlet(1, alpha = tmp_alpha)
+    cixs = which(regions == reg)
+    tmp_SeqDep = sample(seqDepth[cixs], 1) /2
+    XX = rmultinom(1, size = tmp_SeqDep, prob = PP)
+    Ynew[, i] = XX
+}
+IDC2 = SingleCellExperiment(assays = list(counts = Ynew), colData  = colData(IDC), rowData = rowData(IDC))
+print(IDC)
+writeH5AD(IDC2, file = "IDC_down.h5ad")
+```
+
