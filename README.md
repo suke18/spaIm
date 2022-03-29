@@ -13,5 +13,6 @@ Using Dirichlet Multinomial (DM) Mixture Models for simulation the downsampled g
 Using NB decoder to de-noise the original gene expression matrix. The workflow includes two inputs followed by the negative bionomial decoder.
 
 <p align="center" width="100%">
-  <img width="60%" src="spaIm/spaIm_workflow.jpg">
+  <img width="500" height="300" src="spaIm/spaIm_workflow.jpg">
 </p>
+The tutorial for running spaIm can be found here. 
