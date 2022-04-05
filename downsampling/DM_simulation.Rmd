@@ -56,18 +56,27 @@ Input count matrix and estimate parameters
 print(IDC)
 source("Estimation_DM.R")
 est_alpha = estPara(Y, regions)
+```
+
+# Simulate the new library size
+The sequence depth is $50\%$ shrinked by using gamma distribution. Specifically, we model the shrinkage effect by using gamma(25, 50), where the mean is 0.5, and sd is 0.1. 
+
+```{r seq dep}
+nsample = ncol(Y)
 seqDepth = colSums(Y)
+set.seed(123)
+newseqDepth = seqDepth*rgamma(nsample, 25, 50)
+newseqDepth = round(newseqDepth)
 ```
 
 # Simulation
 ```{r simulation}
-Ynew = matrix(0, ncol = ncol(Y), nrow = nrow(Y))
-for (i in 1:ncol(Y)){
+Ynew = matrix(0, ncol = nsample, nrow = nrow(Y))
+for (i in 1:nsample){
     reg = regions[i]
     tmp_alpha = est_alpha[, reg]
     PP = rdirichlet(1, alpha = tmp_alpha)
-    cixs = which(regions == reg)
-    tmp_SeqDep = sample(seqDepth[cixs], 1) /2
+    tmp_SeqDep = newseqDepth[i]
     XX = rmultinom(1, size = tmp_SeqDep, prob = PP)
     Ynew[, i] = XX
 }
