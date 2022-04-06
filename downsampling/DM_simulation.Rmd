@@ -85,3 +85,12 @@ print(IDC)
 writeH5AD(IDC2, file = "IDC_down.h5ad")
 ```
 
+# Simulation (simple)
+```{r simulation2}
+set.seed(123)
+ngene = nrow(Y)
+shrinkages = matrix(rgamma(nsample*ngene, 25, 50), nrow = ngene, ncol=nsample)
+Ynew = Y * shrinkages
+IDC3 = SingleCellExperiment(assays = list(counts = Ynew), colData  = colData(IDC), rowData = rowData(IDC))
+writeH5AD(IDC3, file = "IDC_down_2.h5ad")
+```

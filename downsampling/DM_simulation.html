@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2022-04-05" />
+<meta name="date" content="2022-04-06" />
 
 <title>Dirchlet Multinomial Simulation</title>
 
@@ -258,7 +258,7 @@ function toggle_visibility(id1) {
 <h1 class="title toc-ignore">Dirchlet Multinomial Simulation</h1>
 <p class="author-name">Kenong Su<span class="affil-mark">*</span></p>
 <p class="author-email"><span class="affil-mark">*</span><a href="mailto:kenong.su@pennmedicine.upenn.edu">kenong.su@pennmedicine.upenn.edu</a></p>
-<h4 class="date">5 April 2022</h4>
+<h4 class="date">6 April 2022</h4>
 <h4 class="abstract">Abstract</h4>
 <p>This includes basic steps for simulating DM distribution in spatial transcriptomics data.</p>
 
@@ -336,6 +336,16 @@ print(IDC)
 #&gt; mainExpName: NULL
 #&gt; altExpNames(0):
 writeH5AD(IDC2, file = &quot;IDC_down.h5ad&quot;)
+#&gt; ℹ Using the &#39;counts&#39; assay as the X matrix</code></pre>
+</div>
+<div id="simulation-simple" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Simulation (simple)</h1>
+<pre class="r"><code>set.seed(123)
+ngene = nrow(Y)
+shrinkages = matrix(rgamma(nsample*ngene, 25, 50), nrow = ngene, ncol=nsample)
+Ynew = Y * shrinkages
+IDC3 = SingleCellExperiment(assays = list(counts = Ynew), colData  = colData(IDC), rowData = rowData(IDC))
+writeH5AD(IDC3, file = &quot;IDC_down_2.h5ad&quot;)
 #&gt; ℹ Using the &#39;counts&#39; assay as the X matrix</code></pre>
 </div>
 
