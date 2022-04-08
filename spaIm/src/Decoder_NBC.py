@@ -10,13 +10,7 @@ def gammapoisson_nll(concentration, rate, y):
     dist = GammaPoisson(concentration=concentration, rate=rate)
     loss = (-1) * dist.log_prob(y)
     return loss.mean()
-# n_observations = 100
-# n_targets = 1
-# y_observed = torch.randint( low=0, high=10, size=(n_observations, n_targets))
-# concentration_predicted = torch.exp(torch.randn(n_observations, n_targets))
-# rate_predicted = torch.exp(torch.randn(n_observations, n_targets))
-# loss = gammapoisson_nll( concentration=concentration_predicted, rate=rate_predicted, y=y_observed)
-# print(loss)
+
 
 class NBR_plnet(pl.LightningModule):
     def __init__(self, n_embed, n_hidden1, n_hidden2, n_output, rho, learning_rate = 1e-5):
@@ -51,7 +45,8 @@ class NBR_plnet(pl.LightningModule):
         pred_dropout = torch.pow(self.rho / (torch.mean(mu, dim=0) + self.rho), self.rho)
         # loss2 = F.mse_loss(pred_dropout, dropout)
         loss2 = torch.abs(F.kl_div(pred_dropout, dropout))
-        loss = loss1*2 + loss2
+        loss = loss1 + loss2
+        # loss = loss1
         self.log('train_loss', loss, on_step=False, on_epoch=True, prog_bar=False)
         return loss
 
@@ -68,7 +63,8 @@ class NBR_plnet(pl.LightningModule):
         pred_dropout = torch.pow(self.rho / (torch.mean(mu, dim=0) + self.rho), self.rho)
         # loss2 = F.mse_loss(pred_dropout, dropout)
         loss2 = torch.abs(F.kl_div(pred_dropout, dropout))
-        loss = loss1*2 + loss2
+        loss = loss1 + loss2
+        # loss = loss1
         self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=False)
         return loss
 

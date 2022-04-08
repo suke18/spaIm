@@ -1,5 +1,3 @@
-import torch
-
 from src.get_disp import *
 from src.decoder_NBC import *
 from src.PE_NODE_Embedding import *
@@ -65,15 +63,24 @@ def Decoder_NB(adata, min_cells=10, embed_size=64, batch_size=64, n_hidden1=128,
     pred_con, pred_rate = plmodel(X1, X2)
     ypreds = torch.exp(pred_con) / torch.exp(pred_rate)
     ypreds = ypreds.detach().numpy()
-    adata2[:, den_ids] = np.round(ypreds)
+    pred_rate = torch.exp(pred_rate).detach().numpy()
+    pred_con = torch.exp(pred_con).detach().numpy()
+
+    print("empirical bayes estimation")
+    Y = Y.detach().numpy()
+    ypost = (Y + pred_rate*ypreds) / (pred_rate + 1)
+    adata2[:, den_ids] = ypost
+    adata2.uns["predicted"] = ypreds
+    adata2.uns["pred_con"] = pred_con
+    adata2.uns["pred_rate"] = pred_rate
 
     return adata2
 
 
 if __name__ == '__main__':
-    adata = sc.read_h5ad("data/IDC_with_PE.h5ad")
+    adata = sc.read_h5ad("data/IDC_down_2.h5ad")
     adata2 = Decoder_NB(adata)
-    adata2.write_h5ad("data/IDC_denoised_by_klv_by_weight.h5ad")
+    adata2.write_h5ad("data/IDC_denoised_Psalms_0405.h5ad")
 
 
 

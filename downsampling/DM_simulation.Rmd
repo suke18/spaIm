@@ -81,16 +81,19 @@ for (i in 1:nsample){
     Ynew[, i] = XX
 }
 IDC2 = SingleCellExperiment(assays = list(counts = Ynew), colData  = colData(IDC), rowData = rowData(IDC))
-print(IDC)
+print(IDC2)
 writeH5AD(IDC2, file = "IDC_down.h5ad")
 ```
 
 # Simulation (simple)
 ```{r simulation2}
 set.seed(123)
-ngene = nrow(Y)
-shrinkages = matrix(rgamma(nsample*ngene, 25, 50), nrow = ngene, ncol=nsample)
-Ynew = Y * shrinkages
-IDC3 = SingleCellExperiment(assays = list(counts = Ynew), colData  = colData(IDC), rowData = rowData(IDC))
+shrinkages = rgamma(nsample, 50, 100)
+Ynew2 = matrix(0, ncol = nsample, nrow = nrow(Y))
+for (i in 1:nsample){
+    XX = Y[, i]*shrinkages[i]
+    Ynew2[, i] = XX
+}
+IDC3 = SingleCellExperiment(assays = list(counts = Ynew2), colData  = colData(IDC), rowData = rowData(IDC))
 writeH5AD(IDC3, file = "IDC_down_2.h5ad")
 ```

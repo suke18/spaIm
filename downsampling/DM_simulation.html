@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2022-04-06" />
+<meta name="date" content="2022-04-07" />
 
 <title>Dirchlet Multinomial Simulation</title>
 
@@ -258,7 +258,7 @@ function toggle_visibility(id1) {
 <h1 class="title toc-ignore">Dirchlet Multinomial Simulation</h1>
 <p class="author-name">Kenong Su<span class="affil-mark">*</span></p>
 <p class="author-email"><span class="affil-mark">*</span><a href="mailto:kenong.su@pennmedicine.upenn.edu">kenong.su@pennmedicine.upenn.edu</a></p>
-<h4 class="date">6 April 2022</h4>
+<h4 class="date">7 April 2022</h4>
 <h4 class="abstract">Abstract</h4>
 <p>This includes basic steps for simulating DM distribution in spatial transcriptomics data.</p>
 
@@ -322,17 +322,17 @@ for (i in 1:nsample){
     Ynew[, i] = XX
 }
 IDC2 = SingleCellExperiment(assays = list(counts = Ynew), colData  = colData(IDC), rowData = rowData(IDC))
-print(IDC)
+print(IDC2)
 #&gt; class: SingleCellExperiment 
 #&gt; dim: 36601 4727 
-#&gt; metadata(1): BayesSpace.data
-#&gt; assays(2): counts logcounts
+#&gt; metadata(0):
+#&gt; assays(1): counts
 #&gt; rownames(36601): MIR1302-2HG FAM138A ... AC007325.4 AC007325.2
 #&gt; rowData names(3): gene_id gene_name is.HVG
 #&gt; colnames(4727): AGGCAATACGGAGGAC-1 ATCTATCGATGATCAA-1 ...
 #&gt;   AGTCGAATTAGCGTAA-1 TTGAAGTGCATCTACA-1
 #&gt; colData names(8): spot in_tissue ... sizeFactor region
-#&gt; reducedDimNames(1): PCA
+#&gt; reducedDimNames(0):
 #&gt; mainExpName: NULL
 #&gt; altExpNames(0):
 writeH5AD(IDC2, file = &quot;IDC_down.h5ad&quot;)
@@ -341,10 +341,13 @@ writeH5AD(IDC2, file = &quot;IDC_down.h5ad&quot;)
 <div id="simulation-simple" class="section level1" number="5">
 <h1><span class="header-section-number">5</span> Simulation (simple)</h1>
 <pre class="r"><code>set.seed(123)
-ngene = nrow(Y)
-shrinkages = matrix(rgamma(nsample*ngene, 25, 50), nrow = ngene, ncol=nsample)
-Ynew = Y * shrinkages
-IDC3 = SingleCellExperiment(assays = list(counts = Ynew), colData  = colData(IDC), rowData = rowData(IDC))
+shrinkages = rgamma(nsample, 50, 100)
+Ynew2 = matrix(0, ncol = nsample, nrow = nrow(Y))
+for (i in 1:nsample){
+    XX = Y[, i]*shrinkages[i]
+    Ynew2[, i] = XX
+}
+IDC3 = SingleCellExperiment(assays = list(counts = Ynew2), colData  = colData(IDC), rowData = rowData(IDC))
 writeH5AD(IDC3, file = &quot;IDC_down_2.h5ad&quot;)
 #&gt; ℹ Using the &#39;counts&#39; assay as the X matrix</code></pre>
 </div>
